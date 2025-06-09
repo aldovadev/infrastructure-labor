@@ -1,0 +1,110 @@
+services:
+  tjakra-bot-production:
+    image: tjakradev/tjakra-bot:production
+    container_name: tjakra-bot-production
+    environment:
+      - PORT=8860
+      - DEPLOYMENT_MODE=production
+      - WEBHOOK_SECRET=${WEBHOOK_SECRET}
+      - STAGING_WEBHOOK_SECRET=${STAGING_WEBHOOK_SECRET}
+      - DEVELOPMENT_WEBHOOK_SECRET=${DEVELOPMENT_WEBHOOK_SECRET}
+      - WEBHOOK_BASE_URL=${WEBHOOK_BASE_URL}
+      - STAGING_WEBHOOK_BASE_URL=${STAGING_WEBHOOK_BASE_URL}
+      - DEVELOPMENT_WEBHOOK_BASE_URL=${DEVELOPMENT_WEBHOOK_BASE_URL}
+      - MEKARI_BASE_URL=${MEKARI_BASE_URL}
+      - MEKARI_ACCESS_TOKEN=${MEKARI_ACCESS_TOKEN}
+      - MEKARI_REFRESH_TOKEN=${MEKARI_REFRESH_TOKEN}
+      - DEVELOPMENT_WHITELIST=${DEVELOPMENT_WHITELIST}
+      - STAGING_WHITELIST=${STAGING_WHITELIST}
+      - DATABASE_URL=${DATABASE_URL_PROD}
+      - BASE_URL_FORM=${BASE_URL_FORM_PROD}
+      - FORM_URL_SECRET=${FORM_URL_SECRET}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASS=${EMAIL_PASS}
+      - EMAIL_ADMIN=${EMAIL_ADMIN}
+      - JWT_SECRET=${JWT_SECRET}
+      - URLSCAN_API_KEY=${URLSCAN_API_KEY}
+      - ACCESS_KEY_MINIO=${ACCESS_KEY_MINIO}
+      - SECRET_KEY_MINIO=${SECRET_KEY_MINIO}
+      - MINIO_PUBLIC_URL=${MINIO_PUBLIC_URL}
+      - GRAFANA_BASE_URL=${GRAFANA_BASE_URL}
+      - BEARER_TOKEN_GRAFANA=${BEARER_TOKEN_GRAFANA}
+      - BEARER_TOKEN_GRAFANA_USER=${BEARER_TOKEN_GRAFANA_USER}
+      - AUTH_USERNAME=${AUTH_USERNAME}
+      - AUTH_PASSWORD=${AUTH_PASSWORD}
+      - WAZUH_BASE_URL=${WAZUH_BASE_URL}
+    networks:
+      - tjakra_default
+    restart: unless-stopped
+
+  tjakra-bot-staging:
+    image: tjakradev/tjakra-bot:staging
+    container_name: tjakra-bot-staging
+    environment:
+      - PORT=8860
+      - DEPLOYMENT_MODE=staging
+      - WEBHOOK_SECRET=${WEBHOOK_SECRET}
+      - STAGING_WEBHOOK_SECRET=${STAGING_WEBHOOK_SECRET}
+      - DEVELOPMENT_WEBHOOK_SECRET=${DEVELOPMENT_WEBHOOK_SECRET}
+      - WEBHOOK_BASE_URL=${WEBHOOK_BASE_URL}
+      - STAGING_WEBHOOK_BASE_URL=${STAGING_WEBHOOK_BASE_URL}
+      - DEVELOPMENT_WEBHOOK_BASE_URL=${DEVELOPMENT_WEBHOOK_BASE_URL}
+      - MEKARI_BASE_URL=${MEKARI_BASE_URL}
+      - MEKARI_ACCESS_TOKEN=${MEKARI_ACCESS_TOKEN}
+      - MEKARI_REFRESH_TOKEN=${MEKARI_REFRESH_TOKEN}
+      - DEVELOPMENT_WHITELIST=${DEVELOPMENT_WHITELIST}
+      - STAGING_WHITELIST=${STAGING_WHITELIST}
+      - DATABASE_URL=${DATABASE_URL_STAG}
+      - BASE_URL_FORM=${BASE_URL_FORM_STAG}
+      - FORM_URL_SECRET=${FORM_URL_SECRET}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASS=${EMAIL_PASS}
+      - EMAIL_ADMIN=${EMAIL_ADMIN}
+      - JWT_SECRET=${JWT_SECRET}
+      - URLSCAN_API_KEY=${URLSCAN_API_KEY}
+      - ACCESS_KEY_MINIO=${ACCESS_KEY_MINIO}
+      - SECRET_KEY_MINIO=${SECRET_KEY_MINIO}
+      - MINIO_PUBLIC_URL=${MINIO_PUBLIC_URL}
+      - GRAFANA_BASE_URL=${GRAFANA_BASE_URL}
+      - BEARER_TOKEN_GRAFANA=${BEARER_TOKEN_GRAFANA}
+      - BEARER_TOKEN_GRAFANA_USER=${BEARER_TOKEN_GRAFANA_USER}
+      - AUTH_USERNAME=${AUTH_USERNAME}
+      - AUTH_PASSWORD=${AUTH_PASSWORD}
+      - WAZUH_BASE_URL=${WAZUH_BASE_URL}
+    networks:
+      - tjakra_default
+    restart: unless-stopped
+
+  tjakradb-bot-production:
+    container_name: tjakradb-bot-production
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER_PROD}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD_PROD}
+      - POSTGRES_DB=${POSTGRES_DB_PROD}
+    volumes:
+      - tjakra-bot-prod-data:/var/lib/postgresql/data
+    networks:
+      - tjakra_default
+
+  tjakradb-bot-staging:
+    container_name: tjakradb-bot-staging
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER_STAG}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD_STAG}
+      - POSTGRES_DB=${POSTGRES_DB_STAG}
+    volumes:
+      - tjakra-bot-stag-data:/var/lib/postgresql/data
+    networks:
+      - tjakra_default
+
+networks:
+  tjakra_default:
+    external: true
+
+volumes:
+  tjakra-bot-prod-data:
+  tjakra-bot-stag-data:

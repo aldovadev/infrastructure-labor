@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  aldovadev-app:
+    image: aldovadev/barber-web:latest
+    container_name: barber-web
+    restart: unless-stopped
+    networks:
+      - barber_default
+
+networks:
+  barber_default:
+    external: true

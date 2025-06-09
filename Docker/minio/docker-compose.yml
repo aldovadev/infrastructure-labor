@@ -1,0 +1,16 @@
+version: "3"
+
+services:
+  minio:
+    image: quay.io/minio/minio
+    restart: unless-stopped
+    container_name: minio
+    volumes:
+      - ~/minio/data:/data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports:
+      - "7000:7000"
+      - "7001:7001"
+    command: server /data --address ":7000" --console-address ":7001"

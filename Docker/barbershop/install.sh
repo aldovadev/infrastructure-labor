@@ -1,0 +1,1 @@
+docker run -d --name barber-web --network barber_default -p --restart=unless-stopped aldovadev/barber-web:latest

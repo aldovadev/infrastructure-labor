@@ -1,0 +1,38 @@
+services:
+  barber-api-production:
+    image: aldovadev/barber-api:production
+    container_name: barber-api-production
+    restart: unless-stopped
+    environment:
+      - PORT=${PORT_BARBER}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS_BARBER}
+      - DATABASE_URL=${DATABASE_URL_BARBER}
+      - X_API_KEY=${X_API_KEY_BARBER}
+      - SQUARE_BASE_URL=${SQUARE_BASE_URL}
+      - SQUARE_ACCESS_TOKEN=${SQUARE_ACCESS_TOKEN}
+      - SQUARE_LOCATION_ID=${SQUARE_LOCATION_ID}
+
+      - BOOKING_WEBHOOK_KEY=${BOOKING_WEBHOOK_KEY}
+    depends_on:
+      - barber-db-production
+    networks:
+      - barber_default
+
+  barber-db-production:
+    container_name: barber-db-production
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER_BARBER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD_BARBER}
+      - POSTGRES_DB=${POSTGRES_DB_BARBER}
+    volumes:
+      - barber-data:/var/lib/postgresql/data
+    networks:
+      - barber_default
+
+volumes:
+  barber-data:
+
+networks:
+  barber_default:
+    external: true

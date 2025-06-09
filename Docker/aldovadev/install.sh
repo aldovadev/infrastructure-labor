@@ -1,0 +1,1 @@
+docker run -d --name aldovadev-app --network tunnel --restart=unless-stopped aldovadev/aldovadev-app:latest

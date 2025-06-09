@@ -1,0 +1,13 @@
+services:
+  cloudflare:
+    image: cloudflare/cloudflared:latest
+    container_name: cf-tunnel
+    command: tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+    networks:
+      - cloudflare_default
+
+networks:
+  cloudflare_default:
+    external: true

@@ -1,0 +1,56 @@
+services:
+  tjakra-pemda-production:
+    image: tjakradev/tjakra-pemda-api:production
+    container_name: tjakra-pemda-production
+    environment:
+      - PORT=${PORT}
+      - ACCESS_TOKEN_SECRET=${ACCESS_TOKEN_SECRET}
+      - REFRESH_TOKEN_SECRET=${REFRESH_TOKEN_SECRET}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+      - WEB_BASE_URL=${WEB_BASE_URL}
+      - DATABASE_URL=${DATABASE_URL}
+      - EMAIL_ADMIN=${EMAIL_ADMIN}
+      - PASSWORD_ADMIN=${PASSWORD_ADMIN}
+      - ACCESS_KEY_MINIO=${ACCESS_KEY_MINIO}
+      - SECRET_KEY_MINIO=${SECRET_KEY_MINIO}
+      - MINIO_PUBLIC_URL=${MINIO_PUBLIC_URL}
+      - SECRET_KEY_ENCRYPTION=${SECRET_KEY_ENCRYPTION}
+      - EMAIL_USER=${EMAIL_USER}
+      - EMAIL_PASS=${EMAIL_PASS}
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL}
+      - BUGSNAG_API_KEY=${BUGSNAG_API_KEY}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
+      - JIRA_BASE_URL=${JIRA_BASE_URL}
+      - JIRA_USERNAME=${JIRA_USERNAME}
+      - JIRA_API_TOKEN=${JIRA_API_TOKEN}
+      - JIRA_LEAD_ACCOUNT_ID=${JIRA_LEAD_ACCOUNT_ID}
+      - API_BASE_AI=${API_BASE_AI}
+      - API_KEY_AI=${API_KEY_AI}
+      - BOT_API_BASE_URL=${BOT_API_BASE_URL}
+      - BOT_API_SECRET=${BOT_API_SECRET}
+    ports:
+      - "${PORT}:${PORT}"
+    networks:
+      - pemda_default
+    depends_on:
+      - tjakradb-pemda-production
+    restart: unless-stopped
+
+  tjakradb-pemda-production:
+    container_name: ${DB_HOST}
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - tjakra-pemda-prod-data:/var/lib/postgresql/data
+    networks:
+      - pemda_default
+
+networks:
+  pemda_default:
+
+volumes:
+  tjakra-pemda-prod-data:
