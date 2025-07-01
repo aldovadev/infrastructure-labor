@@ -1,0 +1,21 @@
+services:
+  gen-score-api-production:
+    image: tjakradev/gen-score-api:latest
+    container_name: gen-score-api-production
+    environment:
+      - APP_PORT=${APP_PORT}
+      - APP_URL=${APP_URL}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - X_API_KEY=${X_API_KEY}
+      - MINIO_ENDPOINT=${MINIO_ENDPOINT}
+      - MINIO_BUCKET=${MINIO_BUCKET}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+    ports:
+      - ${APP_PORT}:${APP_PORT}
+    networks:
+      - tjakra_default
+    restart: unless-stopped
+
+networks:
+  tjakra_default:
