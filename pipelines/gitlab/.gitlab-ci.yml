@@ -1,0 +1,83 @@
+stages: 
+  - build-container
+  - deploy
+
+variables:
+  TAG_IMAGE: $CI_COMMIT_BRANCH-$CI_COMMIT_SHA
+  CI_REGISTRY_USER: $DOCKER_HUB_USER
+  CI_REGISTRY_PASSWORD: $DOCKER_HUB_TOKEN
+
+docker-build:
+  image: docker:latest
+  stage: build-container
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD"
+  script:
+    - docker build -t "$CI_REGISTRY_USER/$IMAGE_NAME:latest" -t "$CI_REGISTRY_USER/$IMAGE_NAME:$TAG_IMAGE" .
+    - docker push "$CI_REGISTRY_USER/$IMAGE_NAME:latest"
+    - docker push "$CI_REGISTRY_USER/$IMAGE_NAME:$TAG_IMAGE"
+  only:
+    - main
+
+deploy-staging:
+  image: alpine:latest
+  stage: deploy
+  environment: 
+    name: staging
+    url: $STAGING_URL
+  before_script:
+    - apk update && apk add --no-cache openssh 
+    - 'which ssh-agent || ( apk update && apk add --no-cache openssh )'
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+    - chmod 700 ~/.ssh/id_rsa
+    - eval "$(ssh-agent -s)"
+    - ssh-add ~/.ssh/id_rsa
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+  script:
+    - ssh -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_STAGING}
+      "export CONTAINER_NAME_STAGING=$CONTAINER_NAME_STAGING &&
+      export IMAGE_NAME_STAGING=$IMAGE_NAME_STAGING &&
+      export VITE_PUBLIC_BASE_URL_STAGING=$VITE_PUBLIC_BASE_URL_STAGING &&
+      export VITE_PUBLIC_API_URL_STAGING=$VITE_PUBLIC_API_URL_STAGING &&
+      docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD && 
+      cd /root/$REPOSITORY_NAME && 
+      git pull && 
+      docker-compose -f docker-compose.stag.yml down &&
+      docker-compose -f docker-compose.stag.yml pull && 
+      docker-compose -f docker-compose.stag.yml up -d" 
+  only:
+    - main
+
+deploy-production:
+  image: alpine:latest
+  stage: deploy
+  environment: 
+    name: production
+    url: $PRODUCTION_URL
+  before_script:
+    - 'which ssh-agent || ( apk update && apk add --no-cache openssh )'
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+    - chmod 700 ~/.ssh/id_rsa
+    - eval "$(ssh-agent -s)"
+    - ssh-add ~/.ssh/id_rsa
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+  script:
+    - ssh -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_PRODUCTION} 
+      "export CONTAINER_NAME_PRODUCTION=$CONTAINER_NAME_PRODUCTION &&
+      export IMAGE_NAME_PRODUCTION=$IMAGE_NAME_PRODUCTION &&
+      export IMAGE_NAME_PRODUCTION=$IMAGE_NAME_PRODUCTION &&
+      export VITE_PUBLIC_BASE_URL_PRODUCTION=$VITE_PUBLIC_BASE_URL_PRODUCTION &&
+      export VITE_PUBLIC_API_URL_PRODUCTION=$VITE_PUBLIC_API_URL_PRODUCTION &&
+      docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD && 
+      cd /root/$REPOSITORY_NAME && 
+      git pull && 
+      docker-compose -f docker-compose.prod.yml down &&
+      docker-compose -f docker-compose.prod.yml pull && 
+      docker-compose -f docker-compose.prod.yml up -d" 
+  when: manual
+  only:
+    - main
